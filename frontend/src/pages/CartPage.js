@@ -66,7 +66,7 @@ export default function CartPage() {
                   <img
                     src={normalizeImageUrl(item.image_url || item.image) || `/api/placeholder/80/80`}
                     alt={item.name}
-                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }}
+                    style={{ objectFit: 'cover', borderRadius: 16 }}
                     onError={e => { e.target.src = '/api/placeholder/80/80'; }}
                   />
                 </div>

@@ -131,11 +131,11 @@
 .featured-section {
   padding: 5rem 0;
   background: #f8f9fa;
-  margin-left:5px;
+  margin-left:0px;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1900px;
   margin: 0 auto;
   padding: 0 2rem;
 }

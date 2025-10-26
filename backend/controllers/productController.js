@@ -2,7 +2,14 @@
 exports.getFeatured = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 8;
-    const [rows] = await pool.query('SELECT * FROM products ORDER BY created_at DESC LIMIT ?', [limit]);
+    const [rows] = await pool.query(`
+      SELECT p.*, p.image_url, c.name as category_name, s.name as supplier_name 
+      FROM products p 
+      LEFT JOIN categories c ON p.category_id = c.category_id 
+      LEFT JOIN suppliers s ON p.supplier_id = s.supplier_id
+      ORDER BY p.created_at DESC
+      LIMIT ?
+    `, [limit]);
     res.json(rows);
   } catch (err) { next(err); }
 };

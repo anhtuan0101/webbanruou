@@ -8,7 +8,7 @@ import usePagination from './usePagination';
 /**
  * Custom hook for managing products with search, filter, and pagination
  */
-const useProducts = ({ initialPage = 1 } = {}) => {
+const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -98,13 +98,13 @@ const useProducts = ({ initialPage = 1 } = {}) => {
     goToPage,
     nextPage,
     previousPage,
-    setCurrentPage
-  } = usePagination(processedProducts, 12, initialPage); // 12 products per page
+    resetPagination
+  } = usePagination(processedProducts, 12); // 12 products per page
 
-  // Reset về trang 1 khi filter/search/sort đổi, nhưng KHÔNG reset khi chỉ đổi page
+  // Reset pagination when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearchTerm, categoryFilter, typeFilter, sortBy, sortOrder]);
+    resetPagination();
+  }, [debouncedSearchTerm, categoryFilter, typeFilter, sortBy, sortOrder, resetPagination]);
 
   // Search and filter functions
   const handleSearch = (term) => {
@@ -162,6 +162,8 @@ const useProducts = ({ initialPage = 1 } = {}) => {
     goToPage,
     nextPage,
     previousPage
+    ,
+    resetPagination
   };
 };
 

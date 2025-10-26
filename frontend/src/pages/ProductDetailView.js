@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import formatPrice from '../utils/formatPrice';
-import './ProductDetail.css';
+import './ProductDetailView.css';
 
 export default function ProductDetailView({
   product,
@@ -13,15 +13,23 @@ export default function ProductDetailView({
   navigate
 }) {
   // Chuẩn hóa đường dẫn ảnh (nếu là đường dẫn tương đối thì thêm domain backend)
+  // Thống nhất normalizeImageUrl giống homepage
   const normalizeImageUrl = (raw) => {
-    if (!raw) return '/api/placeholder/400/400';
+    if (!raw) return '/placeholder.svg';
     let url = String(raw).trim();
     if (/^https?:\/\//i.test(url)) return url;
-    // Nếu là đường dẫn /uploads/... thì thêm domain backend
-    if (url.startsWith('/uploads/')) {
-      return (process.env.REACT_APP_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000') + url;
+    url = url.replace(/\\/g, '/');
+    url = url.replace(/^[a-zA-Z]:\//, '/');
+    if (!url.startsWith('/')) url = '/' + url;
+    try {
+      const parts = url.split('/').map(encodeURIComponent);
+      url = parts.join('/').replace(/^%2F/, '/');
+    } catch (e) {
+      url = encodeURI(url);
     }
-    // Nếu là đường dẫn public khác
+    if (url.startsWith('/uploads/')) {
+      url = `http://localhost:5000${url}`;
+    }
     return url;
   };
   const productImages = product.image_url ? [normalizeImageUrl(product.image_url)] : ['/api/placeholder/400/400'];

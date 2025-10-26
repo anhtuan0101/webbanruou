@@ -1,5 +1,5 @@
 // frontend/src/hooks/usePagination.js
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 /**
  * Custom hook for pagination logic
@@ -68,9 +68,11 @@ const usePagination = (data, itemsPerPage = 10, initialPage = 1) => {
   };
 
   // Reset to first page when data changes
-  const resetPagination = () => {
+  // useCallback keeps the same function identity between renders so
+  // components/effects that depend on it don't get unnecessary re-runs
+  const resetPagination = useCallback(() => {
     setCurrentPage(1);
-  };
+  }, []);
 
   return {
     currentData,
@@ -82,7 +84,8 @@ const usePagination = (data, itemsPerPage = 10, initialPage = 1) => {
     previousPage,
     goToFirstPage,
     goToLastPage,
-    setCurrentPage
+    setCurrentPage,
+    resetPagination
   };
 };
 

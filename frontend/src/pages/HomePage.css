@@ -1,3 +1,18 @@
+.homepage-products-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 24px;
+  align-items: stretch;
+}
+.homepage-products-grid > .product-card {
+  flex: 1 1 260px;
+  min-width: 260px;
+  max-width: 320px;
+  height: 100%;
+  display: flex;
+}
+/* Homepage product grid equal height fix */
 /* Footer của section sản phẩm nổi bật */
 .section-footer {
   display: flex;
@@ -30,57 +45,414 @@
 }
 /* Nút mua sắm ngay nổi bật */
 .hero-cta {
-  display: inline-block;
-  background: linear-gradient(90deg, #f6ad5b 50%, #cfe90b 1000%);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
   font-weight: 700;
   font-size: 1.25rem;
-  padding: 16px 40px;
-  border-radius: 40px;
-  box-shadow: 0 4px 16px 0 rgba(255,152,0,0.12);
+  padding: 1.25rem 2.5rem;
+  border-radius: 50px;
   border: none;
   text-decoration: none;
-  letter-spacing: 0.5px;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-  margin-top: 300px;
-  margin-left:-650px;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 10px 25px -5px rgba(34, 197, 94, 0.3),
+    0 0 0 2px rgba(34, 197, 94, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out 0.6s backwards;
 }
+
+.cta-icon {
+  font-size: 1.5rem;
+}
+
+.cta-arrow {
+  font-size: 1.25rem;
+  transition: transform 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+  transform: scale(0);
+  transition: transform 0.6s;
+}
+
 .hero-cta:hover, .hero-cta:focus {
-  background: linear-gradient(90deg, #ffb74d 0%, #ff9800 100%);
+  background: linear-gradient(90deg, #ffb74d 0%, #cfe90b 100%);
   color: #fff;
-  box-shadow: 0 8px 24px 0 rgba(255,152,0,0.18);
-  transform: translateY(-2px) scale(1.04);
+  box-shadow: 
+    0 8px 30px rgba(255,152,0,0.3),
+    0 12px 36px rgba(207,233,11,0.2),
+    inset 0 2px 4px rgba(255,255,255,0.5);
+  transform: translateY(-3px) scale(1.05);
   text-decoration: none;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 15px 30px -5px rgba(34, 197, 94, 0.4),
+    0 0 0 4px rgba(34, 197, 94, 0.2);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.hero-cta:hover .cta-arrow {
+  transform: translateX(5px);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .hero-image-container {
+    height: 500px;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 0;
+  }
+  
+  .hero-text-content {
+    max-width: 100%;
+  }
+  
+  .hero-features {
+    justify-content: center;
+  }
+  
+  .hero-image-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: auto;
+    padding: 4rem 1rem;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .hero-features {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .feature-item {
+    width: fit-content;
+    margin: 0 auto;
+  }
+  
+  .hero-image-container {
+    height: 300px;
+  }
 }
 /* Banner giữ nguyên, chỉ làm lại grid sản phẩm phía dưới */
 
 .hero-section {
-  background: 
-    linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
-    url('../assets/Healthy Fruit Landscape Banner.png') center/cover no-repeat;
-  color: white;
-  padding: 7rem 0;
-  min-height: 35vh;
-  width: 85vw;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: url('../assets/Healthy Fruit Landscape Banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  z-index: 1;
+  backdrop-filter: brightness(1.2);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.hero-text-content {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out;
+  max-width: 800px;
+}
+
+.hero-subtitle {
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  line-height: 1.4;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+  max-width: 600px;
+}
+
+.hero-features {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+}
+
+.feature-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.hero-image-container {
+  flex: 1;
+  position: relative;
+  height: 600px;
+  animation: fadeInRight 1s ease-out;
+}
+
+.floating-fruits {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.floating-fruit {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.fruit1 {
+  width: 280px;
+  top: 10%;
+  right: 10%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.fruit2 {
+  width: 200px;
+  top: 40%;
+  right: 40%;
+  animation: float 7s ease-in-out infinite 1s;
+}
+
+.fruit3 {
+  width: 160px;
+  top: 60%;
+  right: 15%;
+  animation: float 5s ease-in-out infinite 0.5s;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: shine 5s infinite;
+}
+
+@keyframes shine {
+  to {
+    left: 200%;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 
+      0 20px 40px rgba(255, 152, 0, 0.15),
+      0 0 100px rgba(207, 233, 11, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 25px 50px rgba(255, 152, 0, 0.25),
+      0 0 120px rgba(207, 233, 11, 0.2);
+  }
 }
 
 
 /* Grid sản phẩm nổi bật - 4 sản phẩm 1 hàng, spacing đẹp, card nổi bật */
 .homepage-products-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(260px, 1fr));
-  gap: 48px 48px;
+  grid-template-columns: repeat(4, minmax(250px, 1fr));
+  gap: 2rem;
   width: 100%;
-  max-width: 1600px;
-  margin: -0 auto;
-/* Đảm bảo grid không bị sát lề, đẹp trên mọi màn hình lớn */
-  padding-left: 50px;
-  padding-right: 50px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-image-wrapper {
+  position: relative;
+  padding-top: 100%;
+  background: #f8f9fa;
+}
+
+.product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 1rem;
+}
+
+.product-info {
+  padding: 1.5rem;
+  text-align: center;
+  background: white;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.product-price {
+  font-size: 1.25rem;
+  color: #2ecc71;
+  font-weight: bold;
+  margin: 0.75rem 0;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .homepage-loading,
@@ -113,23 +485,54 @@
   color: #fff;
 }
 
+@media (max-width: 1400px) {
+  .homepage-products-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding: 0 1.5rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .homepage-products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
 @media (max-width: 900px) {
   .homepage-products-grid {
     grid-template-columns: repeat(2, 1fr);
+    padding: 0 1rem;
+  }
+  
+  .product-card {
+    max-width: 400px;
+    margin: 0 auto;
   }
 }
+
 @media (max-width: 600px) {
   .homepage-products-grid {
     grid-template-columns: 1fr;
   }
-  .homepage-featured {
-    padding: 16px 4px 32px 4px;
+  
+  .product-card {
+    max-width: 320px;
   }
+  
+  .homepage-featured {
+    padding: 1rem 0.5rem 2rem;
+  }
+  
+  .product-info {
+    padding: 1rem;
+  }
+  
+  .product-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
   .banner-title {
     font-size: 1.5rem;
   }

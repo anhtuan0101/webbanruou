@@ -1,0 +1,162 @@
+.product-filter-container {
+  width: 100%;
+  padding: 20px 0;
+  margin-bottom: 30px;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.product-title {
+  font-size: 24px;
+  color: #006838;
+  font-weight: 600;
+  margin: 0;
+}
+
+.product-count-badge {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #333;
+  font-size: 14px;
+}
+
+.sort-select {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+}
+
+/* Search Container */
+.search-container {
+  margin-bottom: 20px;
+}
+
+.product-search-form {
+  position: relative;
+  max-width: 100%;
+}
+
+.product-search-input {
+  width: 100%;
+  padding: 12px 45px 12px 20px;
+  border: 2px solid #006838;
+  border-radius: 30px;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.search-button {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #006838;
+  font-size: 20px;
+}
+
+/* Filter Options */
+.filter-options {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  color: #006838;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 8px 15px;
+  border: 1px solid #006838;
+  border-radius: 20px;
+  font-size: 14px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  min-width: 150px;
+}
+
+/* Reset Button */
+.reset-filter-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.reset-filter-btn:hover {
+  background: #ff3333;
+  transform: translateY(-1px);
+}
+
+/* Products Count */
+.products-count {
+  color: #666;
+  font-size: 14px;
+  margin-top: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-filter-container {
+    padding: 15px;
+  }
+
+  .filter-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    flex: 1;
+  }
+
+  .reset-filter-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

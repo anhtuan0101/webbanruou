@@ -1,0 +1,229 @@
+/* Overlay lỗi ảnh sản phẩm */
+.image-error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(245,245,245,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+  z-index: 3;
+  pointer-events: none;
+}
+/* ==========================================================================
+   CSS Card Sản Phẩm - Responsive cho điện thoại & máy tính
+   Sử dụng biến CSS từ global.css
+   ========================================================================== */
+
+.product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.product-card {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid #e5e7eb;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* ===== HÌNH ẢNH SẢN PHẨM ===== */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 75%; /* Tỷ lệ 4:3 cho hình ảnh */
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.out-of-stock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-white);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* ===== THÔNG TIN SẢN PHẨM ===== */
+.product-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: white;
+}
+
+.product-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #006f3c;
+  margin: 0;
+  line-height: 1.5;
+  min-height: 3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin: 0.5rem 0;
+}
+
+
+
+.text-success {
+  color: var(--success);
+}
+
+
+
+.text-danger {
+  color: var(--error);
+}
+
+/* ===== PHẦN HÀNH ĐỘNG SẢN PHẨM ===== */
+.product-actions {
+  margin-top: auto;
+  padding: 0 1rem 1rem 1rem;
+  width: 100%;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.625rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-add-cart {
+  background: #16a34a;
+  color: white;
+}
+
+.btn-add-cart:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-add-cart:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ===== KIỂU RESPONSIVE ===== */
+
+/* Tablet (768px đến 991px) */
+@media (max-width: 991px) {
+  .product-info {
+    padding: var(--space-md);
+  }
+
+  .product-name {
+    font-size: var(--fs-md);
+    min-height: 2.5em;
+  }
+
+  .product-price {
+    font-size: var(--fs-lg);
+  }
+}
+
+/* Điện thoại (Dưới 768px) */
+@media (max-width: 767px) {
+  .product-actions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .product-name {
+    font-size: calc(var(--fs-md) - 0.05rem);
+    min-height: 2.3em;
+  }
+}
+
+/* Điện thoại nhỏ (Dưới 480px) */
+@media (max-width: 479px) {
+  .product-image-container {
+    padding-top: 70%; /* Hình ảnh ngắn hơn trên điện thoại */
+  }
+
+  .product-info {
+    padding: var(--space-sm);
+  }
+
+  .product-name {
+    font-size: var(--fs-sm);
+    margin-bottom: calc(var(--space-xs) + 2px);
+  }
+
+  .product-price {
+    font-size: var(--fs-md);
+    margin-bottom: calc(var(--space-xs) + 2px);
+  }
+
+  /* Ẩn phần loại sản phẩm và số lượng stock trên homepage */
+  .product-category, .product-stock {
+    display: none !important;
+  }
+
+  .btn {
+    padding: calc(var(--space-xs) + 2px) var(--space-sm);
+    font-size: var(--fs-xs);
+  }
+}

@@ -15,7 +15,7 @@ function Footer() {
         <div className="footer-section">
           <div className="footer-logo">
             <img src={require('../assets/LOGO.png')} alt="FruitShop Logo" className="logo-img" style={{width: 40, height: 40, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.18))'}} />
-            <h2 className="logo-title">Fruit Shop</h2>
+            <h2 className="logo-title">Oanh Fruits & Flower</h2>
           </div>
           <p className="footer-subtitle">TRÁI CÂY TƯƠI NGON</p>
           <p className="footer-description">
@@ -72,7 +72,7 @@ function Footer() {
           <div className="contact-info">
                   <div className="contact-item">
                     <span className="contact-icon"><FaMapMarkerAlt /></span>
-                    <span>218/18 NGUYỄN DUY CUNG, PHƯỜNG 12, GÒ VẤP, Ho Chi Minh City, Vietnam</span>
+                    <span>170 Nguyễn Duy Cung, phường An Hội Tây, TPHCM</span>
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaPhoneAlt /></span>
@@ -84,7 +84,7 @@ function Footer() {
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaRegClock /></span>
-                    <span>8:00 - 22:00 (<span style={{ color: '#4ade80' }}>Hàng ngày</span>)</span>
+                    <span>6:00 - 22:00 (<span style={{ color: '#4ade80' }}>Hàng ngày</span>)</span>
                   </div>
           </div>
                  <a
