@@ -72,10 +72,34 @@ const useProducts = () => {
       });
     }
 
-    // Apply type filter (e.g., 'vieng', 'sinh-nhat', 'ke-chuc-mung')
+    // Apply type / sub-category filter
+    // Some APIs may return the sub-category under different property names
+    // (e.g. `type`, `sub_category`, `sub_category_name`, `subcategory_name`, `type_label`, ...).
+    // Check multiple candidate fields to make the filter resilient to backend naming.
     if (typeFilter) {
       const tf = String(typeFilter || '').toLowerCase();
-      filtered = filtered.filter(product => String(product.type || '').toLowerCase() === tf);
+      filtered = filtered.filter(product => {
+        const candidates = [
+          product.type,
+          product.sub_category,
+          product.subcategory,
+          product.sub_category_name,
+          product.subcategory_name,
+          product.type_label,
+          product.sub_category_label
+        ]
+          .filter(Boolean)
+          .map(c => String(c).toLowerCase());
+
+        // direct exact match against any candidate field
+        if (candidates.includes(tf)) return true;
+
+        // sometimes the API stores an id (number) for sub-category; compare as string
+        if (String(product.sub_category_id || '').toLowerCase() === tf) return true;
+
+        // fallback: try matching against the product name (handled also by ProductList fuzzy fallback)
+        return false;
+      });
     }
 
     // Apply sorting

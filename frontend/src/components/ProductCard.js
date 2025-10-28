@@ -84,6 +84,18 @@ export default function ProductCard({ product }) {
             Loại: {product.category_name}
           </p>
         )}
+          {/* Show sub-category / small group (if API provides it under any of several possible fields) */}
+          {(
+            product.sub_category_name ||
+            product.subcategory_name ||
+            product.sub_category ||
+            product.type_label ||
+            product.type
+          ) && (
+            <p className="product-subcategory">
+              Nhóm nhỏ: {product.sub_category_name || product.subcategory_name || product.sub_category || product.type_label || product.type}
+            </p>
+          )}
         <div className="product-actions">
           <button 
             className="btn btn-add-cart" 

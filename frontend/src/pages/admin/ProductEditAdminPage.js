@@ -34,6 +34,7 @@ const ProductEditAdminPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState('');
+  const [debugInfo, setDebugInfo] = useState(null);
   const fileInputRef = useRef();
   const navigate = useNavigate();
 
@@ -42,11 +43,14 @@ const ProductEditAdminPage = () => {
       setLoading(true);
       getProductById(id)
         .then((data) => {
+          // Try to map incoming product data to the admin form.
+          // Some API responses may provide sub-category under different fields (type, sub_category_name, sub_category).
+          const matchedType = fruitBasketTypes.find(t => t.value === data.type || t.label === data.sub_category_name || t.label === data.subcategory_name);
           setForm({
             name: data.name || '',
             price: data.price || '',
             category_id: data.category_id || '',
-            type: data.type || '',
+            type: matchedType ? matchedType.value : (data.type || ''),
             supplier_id: data.supplier_id ? String(data.supplier_id) : '1',
             stock: data.stock ? String(data.stock) : '100',
             description: data.description || '',
@@ -93,22 +97,87 @@ const ProductEditAdminPage = () => {
       price: Number(form.price) || 0,
       category_id: Number(form.category_id) || 1,
       type: form.type || '',
+      // Provide multiple aliases so backend that expects different names will receive the data
+      sub_category: form.type || '',
+      subcategory: form.type || '',
+      sub_category_name: (fruitBasketTypes.find(t => t.value === form.type) || {}).label || form.type || '',
+      subcategory_name: (fruitBasketTypes.find(t => t.value === form.type) || {}).label || form.type || '',
+      type_label: (fruitBasketTypes.find(t => t.value === form.type) || {}).label || form.type || '',
+      sub_category_label: (fruitBasketTypes.find(t => t.value === form.type) || {}).label || form.type || '',
       supplier_id: Number(form.supplier_id) || 1,
       stock: Number(form.stock) || 0,
       image_url: form.image_url,
       description: form.description
     };
     try {
+      // Debug: log payload before sending to API so we can inspect what fields are included
+      console.debug('[Admin] submitting product payload:', payload);
+      setDebugInfo({ stage: 'submitting', payload });
+
       if (isEdit) {
-        await updateProduct(id, payload);
-        alert('Cập nhật thành công!');
+        const res = await updateProduct(id, payload);
+        console.debug('[Admin] updateProduct response:', res);
+        // Verify persisted record by fetching it back from the API
+        let persisted = null;
+        try {
+          persisted = await getProductById(id);
+          console.debug('[Admin] persisted after update:', persisted);
+        } catch (err) {
+          console.debug('[Admin] verify fetch after update failed', err);
+        }
+
+        setDebugInfo({ stage: 'updated', payload, apiResponse: res, persisted });
+
+        if (!persisted) {
+          alert('Cập nhật thành công (không thể xác minh trên server). Kiểm tra bảng debug bên dưới.');
+        } else if (!persisted.sub_category_name && payload.sub_category_name) {
+          alert('Cập nhật thành công, nhưng server không lưu trường nhóm nhỏ. Kiểm tra bảng debug bên dưới.');
+        } else {
+          alert('Cập nhật thành công!');
+        }
+
       } else {
-        await createProduct(payload);
-        alert('Thêm thành công!');
+        const res = await createProduct(payload);
+        console.debug('[Admin] createProduct response:', res);
+        // Try to detect created id from response and verify persisted record
+        const createdId = res?.product_id || res?.id || null;
+        let persisted = null;
+        if (createdId) {
+          try {
+            persisted = await getProductById(createdId);
+            console.debug('[Admin] persisted after create:', persisted);
+          } catch (err) {
+            console.debug('[Admin] verify fetch after create failed', err);
+          }
+        }
+
+        setDebugInfo({ stage: 'created', payload, apiResponse: res, persisted });
+
+        if (createdId) {
+          if (!persisted) {
+            alert('Thêm thành công (không thể xác minh trên server). Kiểm tra bảng debug bên dưới.');
+          } else if (!persisted.sub_category_name && payload.sub_category_name) {
+            alert('Thêm thành công, nhưng server không lưu trường nhóm nhỏ. Kiểm tra bảng debug bên dưới.');
+          } else {
+            alert('Thêm thành công!');
+          }
+        } else {
+          alert('Thêm thành công!');
+        }
       }
-      navigate('/admin/products');
+
+      // Decide whether to navigate away automatically:
+      // - If we could verify persistence and the server stored sub_category_name, navigate back to list.
+      // - Otherwise stay on the edit page so the debug panel is visible for troubleshooting.
+      const persistedOk = debugInfo && (debugInfo.persisted && (debugInfo.persisted.sub_category_name || !payload.sub_category_name));
+      if (persistedOk) {
+        // slight delay so user sees alert then redirect
+        setTimeout(() => navigate('/admin/products'), 700);
+      }
     } catch (err) {
-      alert('Lưu thất bại!');
+      console.error('[Admin] save failed', err);
+      setDebugInfo({ stage: 'error', payload, error: (err && err.response && err.response.data) ? err.response.data : String(err) });
+      alert('Lưu thất bại! Kiểm tra bảng debug bên dưới.');
     }
     setLoading(false);
   };
@@ -158,6 +227,13 @@ const ProductEditAdminPage = () => {
           <button type="submit" className="admin-btn" style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600 }} disabled={loading}>{loading ? 'Đang lưu...' : 'Lưu'}</button>
           <button type="button" className="admin-btn" style={{ background: '#f59e42', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600 }} onClick={() => navigate('/admin/products')}>Quay lại</button>
         </div>
+        {/* Debug panel: shows payload, API response, and persisted product for troubleshooting */}
+        {debugInfo && (
+          <div style={{ marginTop: 20, background: '#0f172a', color: '#e6eef8', padding: 12, borderRadius: 8, fontSize: 13 }}>
+            <strong>Debug info (copy-paste this):</strong>
+            <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 300, overflow: 'auto', marginTop: 8 }}>{JSON.stringify(debugInfo, null, 2)}</pre>
+          </div>
+        )}
       </form>
     </div>
   );

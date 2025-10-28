@@ -54,6 +54,7 @@
   font-size: 1.25rem;
   padding: 1.25rem 2.5rem;
   border-radius: 50px;
+ 
   border: none;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -254,6 +255,7 @@
 .hero-text-content {
   flex: 1;
   max-width: 600px;
+  
 }
 
 .hero-title {

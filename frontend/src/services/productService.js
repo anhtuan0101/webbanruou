@@ -24,6 +24,57 @@ class ProductService {
       } else if (Array.isArray(response.data.products)) {
         products = response.data.products;
       }
+
+  // Normalize product objects to ensure frontend gets consistent fields
+      // Some backends/admin panels return sub-category under different names
+      // (type, sub_category, subcategory, sub_category_name, subcategory_name, type_label, ...).
+      // Map common variants into `type` and `sub_category_name` so filtering and display work.
+      products = products.map((p) => {
+        const prod = { ...p };
+
+        // Candidates for a human-friendly sub-category name
+        const nameCandidates = [
+          prod.sub_category_name,
+          prod.subcategory_name,
+          prod.sub_category,
+          prod.subcategory,
+          prod.type_label,
+          prod.sub_category_label,
+          prod.type
+        ].filter(Boolean);
+
+        if (nameCandidates.length > 0) {
+          prod.sub_category_name = String(nameCandidates[0]);
+        }
+
+        // Ensure `type` exists (used by some filters). Prefer existing `type`, then sub_category_name, then sub_category_id
+        if (!prod.type) {
+          if (prod.sub_category_name) prod.type = String(prod.sub_category_name);
+          else if (prod.sub_category_id !== undefined && prod.sub_category_id !== null) prod.type = String(prod.sub_category_id);
+        }
+
+        return prod;
+      });
+
+      // Apply any client-side overrides (temporary workaround) stored in localStorage
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const raw = window.localStorage.getItem('productSubCategoryOverrides');
+          const overrides = raw ? JSON.parse(raw) : {};
+          products = products.map(prod => {
+            const id = prod.product_id || prod.id || prod.productId || String(prod.product_id || prod.id || '') ;
+            if (!id) return prod;
+            const ov = overrides[String(id)];
+            if (ov) {
+              return { ...prod, ...ov };
+            }
+            return prod;
+          });
+        }
+      } catch (err) {
+        // ignore localStorage issues
+        console.debug('[productService] local override merge failed', err);
+      }
       return {
         products,
         pagination: response.data.pagination || null,
@@ -39,7 +90,44 @@ class ProductService {
   async getProductById(id) {
     try {
       const response = await api.get(`/products/${id}`);
-      return response.data;
+      // Normalize single product shape similar to getAllProducts mapping
+      const data = response.data;
+      const prod = { ...data };
+
+      const nameCandidates = [
+        prod.sub_category_name,
+        prod.subcategory_name,
+        prod.sub_category,
+        prod.subcategory,
+        prod.type_label,
+        prod.sub_category_label,
+        prod.type
+      ].filter(Boolean);
+
+      if (nameCandidates.length > 0) {
+        prod.sub_category_name = String(nameCandidates[0]);
+      }
+
+      if (!prod.type) {
+        if (prod.sub_category_name) prod.type = String(prod.sub_category_name);
+        else if (prod.sub_category_id !== undefined && prod.sub_category_id !== null) prod.type = String(prod.sub_category_id);
+      }
+
+      // Merge client-side override if present
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const raw = window.localStorage.getItem('productSubCategoryOverrides');
+          const overrides = raw ? JSON.parse(raw) : {};
+          const key = String(prod.product_id || prod.id || prod.productId || '');
+          if (key && overrides[key]) {
+            return { ...prod, ...overrides[key] };
+          }
+        }
+      } catch (err) {
+        console.debug('[productService] local override fetch failed', err);
+      }
+
+      return prod;
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error);
       throw error;
@@ -124,7 +212,32 @@ class ProductService {
   // Admin functions
   async createProduct(productData) {
     try {
+      console.debug('[productService] createProduct payload:', productData);
       const response = await api.post('/products', productData);
+      console.debug('[productService] createProduct response:', response && response.data);
+
+      // If server didn't persist sub-category fields, store a temporary client-side override
+      try {
+        const resp = response && response.data ? response.data : {};
+        const createdId = resp.product_id || resp.id || (resp.product && (resp.product.product_id || resp.product.id)) || null;
+        const savedSub = resp.sub_category_name || resp.subcategory_name || resp.sub_category || resp.subcategory || (resp.product && (resp.product.sub_category_name || resp.product.sub_category));
+        if (createdId && productData && productData.sub_category_name && !savedSub) {
+          // write override
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const raw = window.localStorage.getItem('productSubCategoryOverrides');
+            const overrides = raw ? JSON.parse(raw) : {};
+            overrides[String(createdId)] = {
+              sub_category_name: productData.sub_category_name,
+              type: productData.type || String(productData.sub_category_name || '')
+            };
+            window.localStorage.setItem('productSubCategoryOverrides', JSON.stringify(overrides));
+            console.debug('[productService] wrote local override for product', createdId);
+          }
+        }
+      } catch (err) {
+        console.debug('[productService] createProduct override write failed', err);
+      }
+
       return response.data;
     } catch (error) {
       console.error('Error creating product:', error);
@@ -134,7 +247,42 @@ class ProductService {
 
   async updateProduct(id, productData) {
     try {
+      console.debug('[productService] updateProduct id, payload:', id, productData);
       const response = await api.put(`/products/${id}`, productData);
+      console.debug('[productService] updateProduct response:', response && response.data);
+
+      // If server didn't persist sub-category fields, store/update a temporary client-side override
+      try {
+        const resp = response && response.data ? response.data : {};
+        const savedSub = resp.sub_category_name || resp.subcategory_name || resp.sub_category || resp.subcategory || (resp.product && (resp.product.sub_category_name || resp.product.sub_category));
+        const targetId = id || resp.product_id || resp.id || (resp.product && (resp.product.product_id || resp.product.id));
+        if (targetId && productData && productData.sub_category_name && !savedSub) {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const raw = window.localStorage.getItem('productSubCategoryOverrides');
+            const overrides = raw ? JSON.parse(raw) : {};
+            overrides[String(targetId)] = {
+              sub_category_name: productData.sub_category_name,
+              type: productData.type || String(productData.sub_category_name || '')
+            };
+            window.localStorage.setItem('productSubCategoryOverrides', JSON.stringify(overrides));
+            console.debug('[productService] wrote local override for product (update)', targetId);
+          }
+        } else if (targetId && savedSub) {
+          // server saved it, remove any existing override
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const raw = window.localStorage.getItem('productSubCategoryOverrides');
+            const overrides = raw ? JSON.parse(raw) : {};
+            if (overrides[String(targetId)]) {
+              delete overrides[String(targetId)];
+              window.localStorage.setItem('productSubCategoryOverrides', JSON.stringify(overrides));
+              console.debug('[productService] removed local override for product (server saved)', targetId);
+            }
+          }
+        }
+      } catch (err) {
+        console.debug('[productService] updateProduct override write failed', err);
+      }
+
       return response.data;
     } catch (error) {
       console.error(`Error updating product ${id}:`, error);

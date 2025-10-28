@@ -54,10 +54,17 @@ export default function ProductList() {
 
   // Get categories - temporary mock data
   const categories = [
-    { category_id: 1, name: 'Giỏ trái cây' },
-    { category_id: 2, name: 'Hoa tươi' },
-    { category_id: 3, name: 'Trái cây nhập khẩu' },
+    { category_id: 1, name: 'TRÁI CÂY NHẬP KHẨU' },
+    { category_id: 2, name: 'GIỎ QUÀ TRÁI CÂY' },
+    { category_id: 3, name: 'HOA TƯƠI' },
+    { category_id: 5, name: 'TRÁI CÂY VIỆT NAM' },
+
   ];
+
+  // Build a breadcrumb-like title when we're inside a sub-type that belongs to a category.
+  // Example: when category_id=1 (Giỏ trái cây) and selectedType='sinh-nhat',
+  // show "Giỏ quà trái cây / Giỏ trái cây sinh nhật" as requested.
+  
 
   // Update URL params when filters change
   useEffect(() => {
@@ -178,16 +185,25 @@ export default function ProductList() {
 
   // Tiêu đề động cho type
   const typeTitles = {
-    'vieng': 'Giỏ trái cây viếng',
-    'sinh-nhat': 'Giỏ trái cây sinh nhật',
-    'tan-gia': 'Giỏ trái cây tân gia',
-    'cuoi-hoi': 'Giỏ trái cây cưới hỏi',
-    'ke-chuc-mung': 'Kệ hoa chúc mừng',
-    'ke-kinh-vieng': 'Kệ hoa kính viếng',
-    'bo-chuc-mung': 'Bó hoa chúc mừng',
-    'bo-kinh-vieng': 'Bó hoa kính viếng',
+    'vieng': 'GIỎ TRÁI CÂY VIẾNG',
+    'sinh-nhat': 'GIỎ TRÁI CÂY SINH NHẬT',
+    'tan-gia': 'GIỎ TRÁI CÂY TÂN GIA',
+    'cuoi-hoi': 'GIỎ TRÁI CÂY CƯỚI HỎI',
+    'ke-chuc-mung': 'KỆ HOA CHÚC MỪNG',
+    'ke-kinh-vieng': 'KỆ HOA KÍNH VIẾNG',
+    'bo-chuc-mung': 'BÓ HOA CHÚC MỪNG',
+    'bo-kinh-vieng': 'BÓ HOA KÍNH VIẾNG',
   };
   const dynamicTitle = selectedType && typeTitles[selectedType] ? typeTitles[selectedType] : null;
+
+  // Build a breadcrumb-like title when we're inside a sub-type that belongs to a category.
+  const parentCategory = selectedCategory ? categories.find(c => String(c.category_id) === String(selectedCategory)) : null;
+  let parentName = parentCategory ? parentCategory.name : null;
+  // Friendly override: call category 1 "Giỏ quà trái cây" to match menu text
+  if (parentCategory && String(parentCategory.category_id) === '1') {
+    parentName = 'TRÁI CÂY NHẬP KHẨU';
+  }
+  const breadcrumbTitle = (parentName && dynamicTitle) ? `${parentName} / ${dynamicTitle}` : (dynamicTitle || (parentName ? parentName : null));
 
   return (
     <div className="product-list-page">
@@ -195,7 +211,17 @@ export default function ProductList() {
         {/* Header with Sort */}
         <div className="page-header">
           <div className="header-content">
-            <h1>{dynamicTitle || 'Tất cả sản phẩm'}</h1>
+            <h1>
+              {parentName && dynamicTitle ? (
+                <>
+                  <span className="breadcrumb-parent">{parentName}</span>
+                  <span className="breadcrumb-sep"> / </span>
+                  <span className="breadcrumb-child">{dynamicTitle}</span>
+                </>
+              ) : (
+                (breadcrumbTitle || 'Tất cả sản phẩm')
+              )}
+            </h1>
             <div className="header-right">
               <span className="product-count">{displayedProducts.length} sản phẩm</span>
               <select

@@ -30,7 +30,8 @@ export default function HomePage() {
       <section className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <Link to="/products" className="hero-cta">
+            <Link to="/products" className="hero-cta" style={{ marginLeft: '1rem' }}>
+
               🛒 Mua sắm ngay
             </Link>
           </div>
