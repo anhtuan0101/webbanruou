@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
@@ -170,6 +171,10 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
+      <Helmet>
+        <title>{isRegister ? 'Tạo tài khoản | OanhTraiCay' : 'Đăng nhập | OanhTraiCay'}</title>
+        <meta name="description" content={isRegister ? 'Tạo tài khoản mới tại OanhTraiCay để đặt hàng và quản lý đơn hàng dễ dàng.' : 'Đăng nhập vào OanhTraiCay để tiếp tục mua sắm và quản lý đơn hàng của bạn.'} />
+      </Helmet>
       <div className="login-container">
         <div className="login-header">
           <div className="brand-logo">🍎</div>

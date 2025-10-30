@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import formatPrice from '../utils/formatPrice';
@@ -33,6 +34,12 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="cart-page">
+        <Helmet>
+          <title>Giỏ hàng | OanhTraiCay</title>
+          <meta name="description" content="Xem giỏ hàng của bạn tại OanhTraiCay — chỉnh sửa số lượng hoặc tiếp tục mua sắm. Giao hàng nhanh, đóng gói cẩn thận." />
+          <meta property="og:title" content="Giỏ hàng | OanhTraiCay" />
+          <meta property="og:description" content="Xem giỏ hàng của bạn tại OanhTraiCay — chỉnh sửa số lượng hoặc tiếp tục mua sắm." />
+        </Helmet>
         <div className="container">
           <div className="empty-cart">
             <div className="empty-cart-icon">🛒</div>

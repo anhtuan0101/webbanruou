@@ -203,6 +203,8 @@ class AuthService {
     const expirationTime = new Date().getTime() + (expiresIn * 1000);
     
     storage.setItem('accessToken', accessToken);
+    // Also write legacy key 'token' for compatibility with other helpers
+    storage.setItem('token', accessToken);
     storage.setItem('tokenExpiration', expirationTime.toString());
     
     if (refreshToken) {
@@ -216,7 +218,14 @@ class AuthService {
   }
 
   getAccessToken() {
-    return localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    // Support both modern 'accessToken' key and legacy 'token' key
+    return (
+      localStorage.getItem('accessToken') ||
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('accessToken') ||
+      sessionStorage.getItem('token') ||
+      null
+    );
   }
 
   getRefreshToken() {
@@ -277,17 +286,41 @@ class AuthService {
   initializeAuth() {
     const token = this.getAccessToken();
     const user = this.getUser();
-    
-    if (token && user && !this.isTokenExpired()) {
+
+    // If token exists, set Authorization header so subsequent requests (including /auth/me)
+    // include the token. We try to populate `user` by fetching /auth/me when missing.
+    if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      return { token, user };
-    } else if (token && this.isTokenExpired()) {
-      // Try to refresh if token is expired
-      this.refreshToken().catch(() => {
-        this.clearAuth();
-      });
+
+      // If we already have a user and token not expired, return immediately
+      if (user && !this.isTokenExpired()) {
+        return { token, user };
+      }
+
+      // Try to fetch current user to populate local storage
+      (async () => {
+        try {
+          const resp = await api.get('/auth/me');
+          if (resp && resp.data) {
+            this.setUser(resp.data);
+          }
+        } catch (err) {
+          // If fetching /auth/me fails with 401/403, try refresh once
+          try {
+            await this.refreshToken();
+            const retry = await api.get('/auth/me');
+            if (retry && retry.data) this.setUser(retry.data);
+          } catch (err2) {
+            // final fallback: clear auth if we cannot validate token
+            this.clearAuth();
+            delete api.defaults.headers.common['Authorization'];
+          }
+        }
+      })();
+
+      return { token, user: user || null };
     }
-    
+
     return null;
   }
 

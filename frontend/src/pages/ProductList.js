@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useDebounce } from '../hooks/useDebounce';
@@ -205,8 +206,20 @@ export default function ProductList() {
   }
   const breadcrumbTitle = (parentName && dynamicTitle) ? `${parentName} / ${dynamicTitle}` : (dynamicTitle || (parentName ? parentName : null));
 
+  const pageTitle = breadcrumbTitle ? `${breadcrumbTitle} | OanhTraiCay` : 'Tất cả sản phẩm | OanhTraiCay';
+  const pageDescription = dynamicTitle
+    ? `Xem các sản phẩm nhóm ${dynamicTitle} tại OanhTraiCay. Lọc, chọn và đặt hàng online.`
+    : 'Danh sách sản phẩm tại OanhTraiCay. Tìm kiếm và lọc theo danh mục để chọn sản phẩm phù hợp.';
+
   return (
     <div className="product-list-page">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={`https://oanhtraicay.com${window.location.pathname}${window.location.search}`} />
+      </Helmet>
       <div className="container">
         {/* Header with Sort */}
         <div className="page-header">

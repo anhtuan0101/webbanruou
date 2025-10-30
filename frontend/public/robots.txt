@@ -1,3 +1,11 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for your site
+# Replace example.com with your real domain before deploying.
+
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /api/
+Allow: /
+
+# Point crawlers to the sitemap. Updated to your site domain.
+Sitemap: https://oanhtraicay.com/sitemap.xml
+Host: https://oanhtraicay.com

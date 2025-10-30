@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getProductById, createProduct, updateProduct } from '../../services/productService';
 import api from '../../services/api';
+import authService from '../../services/authService';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ProductAdmin.css';
 
@@ -112,7 +113,10 @@ const ProductEditAdminPage = () => {
     try {
       // Debug: log payload before sending to API so we can inspect what fields are included
       console.debug('[Admin] submitting product payload:', payload);
-      setDebugInfo({ stage: 'submitting', payload });
+      // capture current auth header and user for debugging (helps diagnose 401/403)
+      const currentAuthHeader = api.defaults?.headers?.common?.Authorization || localStorage.getItem('accessToken') || localStorage.getItem('token') || sessionStorage.getItem('accessToken') || sessionStorage.getItem('token') || null;
+      const currentUser = authService.getUser ? authService.getUser() : (localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null);
+      setDebugInfo({ stage: 'submitting', payload, auth: { header: currentAuthHeader, user: currentUser } });
 
       if (isEdit) {
         const res = await updateProduct(id, payload);

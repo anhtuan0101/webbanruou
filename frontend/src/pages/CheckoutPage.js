@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
@@ -134,6 +135,10 @@ export default function CheckoutPage() {
   if (orderSuccess) {
     return (
       <div className="checkout-page">
+        <Helmet>
+          <title>Đặt hàng thành công | OanhTraiCay</title>
+          <meta name="description" content="Cảm ơn bạn đã đặt hàng tại OanhTraiCay. Chúng tôi sẽ liên hệ để xác nhận đơn và giao hàng nhanh chóng." />
+        </Helmet>
         <div className="container">
           <div className="checkout-header">
             <h1 style={{ color: '#2ecc40', textAlign: 'center' }}>Đặt hàng thành công!</h1>
@@ -147,6 +152,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="checkout-page">
+      <Helmet>
+        <title>Thanh toán - OanhTraiCay</title>
+        <meta name="description" content="Hoàn tất thanh toán cho đơn hàng của bạn tại OanhTraiCay. Nhập thông tin giao hàng và chọn phương thức thanh toán." />
+      </Helmet>
       <div className="container">
         <div className="checkout-header">
           <h1>Thanh toán đơn hàng</h1>

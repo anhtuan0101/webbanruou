@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import formatPrice from '../utils/formatPrice';
+import normalizeString from '../utils/normalizeString';
 import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import './ProductCard.css';
@@ -33,15 +34,43 @@ export default function ProductCard({ product }) {
     return url;
   };
 
-  const imageUrl = normalizeImageUrl(product.image_url) || '/placeholder.svg';
+  const imageUrl = normalizeImageUrl(product.image_url || product.image) || '/placeholder.svg';
+  // Build an SEO-friendly slug path: use normalized name + id
+  const slugBase = normalizeString(product.name || product.title || 'product').replace(/\s+/g, '-');
+  const idPart = product.product_id || product.id || product.productId || '';
+  const productUrl = idPart ? `/products/${slugBase}-${idPart}` : `/products/${product.product_id}`;
+
+  // Build a lightweight srcSet from available image arrays if present.
+  const srcSet = (() => {
+    const imgs = product.images || product.gallery || product.photos || [];
+    if (!imgs || !Array.isArray(imgs) || imgs.length === 0) return undefined;
+    try {
+      // Map up to 3 sizes (best-effort). Sizes are best-effort hints.
+      return imgs.slice(0, 3).map((r, i) => {
+        const url = normalizeImageUrl(r);
+        const size = i === 0 ? '800w' : i === 1 ? '400w' : '200w';
+        return `${url} ${size}`;
+      }).join(', ');
+    } catch (e) {
+      return undefined;
+    }
+  })();
+
+  const imgWidth = product.image_width || product.imageWidth || product.width;
+  const imgHeight = product.image_height || product.imageHeight || product.height;
 
   return (
     <div className="product-card">
-      <Link to={`/products/${product.product_id}`} className="product-image-container" style={{display:'block'}}>
-        <img 
-          src={imageUrl} 
-          className="product-image" 
-          alt={`Giỏ trái cây, hoa tươi, sản phẩm ${product.name} - FruitShop`}
+  <Link to={productUrl} className="product-image-container" style={{display:'block'}}>
+        <img
+          src={imageUrl}
+          className="product-image"
+          alt={product.name ? `${product.name} - Giỏ trái cây cao cấp từ OanhTraiCay` : 'Sản phẩm OanhTraiCay'}
+          loading="lazy"
+          decoding="async"
+          srcSet={srcSet}
+          sizes={srcSet ? '(max-width: 600px) 100vw, 300px' : undefined}
+          {...(imgWidth && imgHeight ? { width: imgWidth, height: imgHeight } : {})}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = '/placeholder.svg';

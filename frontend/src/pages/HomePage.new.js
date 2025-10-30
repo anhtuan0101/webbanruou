@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.new';
 import { getFeaturedProducts } from '../services/productService';
@@ -69,6 +70,13 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
+      <Helmet>
+        <title>OanhTraiCay - Trái cây tươi & giỏ quà cao cấp</title>
+        <meta name="description" content="OanhTraiCay - Chuyên trái cây chất lượng và giỏ quà, đóng gói sang trọng, giao nhanh tận nơi." />
+        <meta property="og:title" content="OanhTraiCay - Trái cây tươi & giỏ quà cao cấp" />
+        <meta property="og:description" content="Chuyên trái cây chất lượng và giỏ quà, đóng gói sang trọng, giao nhanh tận nơi." />
+        <meta property="og:url" content={`https://oanhtraicay.com/`} />
+      </Helmet>
       {/* Phần Banner Chính */}
       <section className="hero-section">
         <div className="hero-content">
