@@ -368,3 +368,48 @@
     gap: 2rem;
   }
 }
+
+/* Mobile tuning: show 2 products per row on most phones */
+@media (max-width: 600px) {
+  /* Show 2 products per row on most phones.
+     Use minmax(0,1fr) so items can shrink below intrinsic min-width. */
+  .products-grid {
+    grid-template-columns: r, minmax(0, 1fr)) !important;
+    gap: 0.6rem;
+    grid-auto-rows: 1fr;
+  }
+
+  /* Ensure children can shrink and occupy the available column space */
+  .products-grid > * {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Force product-card sizing so two cards can sit side-by-side on narrow screens */
+  .products-grid > .product-card,
+  .products-grid > .product-card * {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .product-image {
+    height: 120px;
+  }
+
+  .product-name {
+    font-size: 0.95rem;
+  }
+
+  .product-price {
+    font-size: 1rem;
+  }
+}
+
+/* Very small phones: 1 column */
+@media (max-width: 380px) {
+  .products-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

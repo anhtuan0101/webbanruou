@@ -80,7 +80,6 @@ export default function CartPage() {
                 
                 <div className="item-details">
                   <h3 className="item-name">{item.name}</h3>
-                  <p className="item-description">{item.description}</p>
                   <p className="item-price">
                     {formatPrice(item.price)} <span className="per-unit">/ đơn vị</span>
                   </p>

@@ -69,33 +69,36 @@
 
 /* --- Cart Item Card --- */
 .cart-item {
-  background-color: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
+  background: linear-gradient(180deg,#fbfefb,#ffffff);
+  border: 1px solid rgba(46,125,50,0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 2rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  gap: 1.25rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .cart-item:hover {
-  border-color: var(--accent-color);
-  box-shadow: 0 4px 10px rgba(56, 118, 29, 0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13,52,20,0.06);
 }
 
 .item-image {
-  width: 120px; /* Đã tăng kích thước ảnh */
-  height: 120px; /* Đã tăng kích thước ảnh */
+  width: 96px;
+  height: 96px;
   flex-shrink: 0;
-  border-radius: 4px;
+  border-radius: 12px;
   overflow: hidden;
+  background: #fff;
+  display:flex;align-items:center;justify-content:center;padding:6px;border:1px solid rgba(46,125,50,0.06)
 }
 
 .item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .item-details {
@@ -131,27 +134,11 @@
 
 /* Quantity Controls */
 .quantity-controls {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  overflow: hidden;
+  display:flex;align-items:center;gap:8px;padding:6px;border-radius:12px;border:1px solid rgba(46,125,50,0.08);background:linear-gradient(180deg,#ffffff,#f7fff7);
 }
 
-.quantity-btn {
-  background: none;
-  border: none;
-  padding: 0.5rem 0.8rem;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 400;
-  color: var(--primary-color);
-  transition: background-color 0.15s;
-}
-
-.quantity-btn:hover:not(:disabled) {
-  background-color: #e6f1e6;
-}
+.quantity-btn{background:transparent;border:1px solid rgba(46,125,50,0.14);padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--primary-color);font-weight:700;min-width:34px;display:inline-flex;align-items:center;justify-content:center}
+.quantity-btn:hover{background:rgba(46,125,50,0.06)}
 
 .quantity-btn:disabled {
   opacity: 0.3;
@@ -159,42 +146,14 @@
   color: var(--subtle-text-color);
 }
 
-.quantity-input {
-  width: 45px;
-  padding: 0.5rem 0;
-  text-align: center;
-  border: none;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-color);
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
-  -moz-appearance: textfield;
-}
+.quantity-input{width:56px;padding:6px;border:1px solid rgba(46,125,50,0.08);border-radius:8px;text-align:center;font-weight:600}
 
 /* Item Total Price */
-.item-total {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--total-color);
-  min-width: 120px;
-  text-align: right;
-}
+.item-total{font-size:1.15rem;font-weight:800;color:var(--total-color);min-width:120px;text-align:right}
 
 /* Remove Button */
-.remove-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.3rem;
-  color: var(--subtle-text-color);
-  padding: 0;
-  transition: color 0.15s;
-}
-
-.remove-btn:hover {
-  color: var(--error-color);
-}
+.remove-btn{background:transparent;border:none;color:var(--subtle-text-color);cursor:pointer;padding:6px;border-radius:8px}
+.remove-btn:hover{color:var(--error-color);background:rgba(220,38,38,0.06)}
 
 /* --- Summary Card --- */
 .summary-card {

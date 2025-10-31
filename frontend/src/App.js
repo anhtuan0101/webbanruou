@@ -13,6 +13,7 @@ import Header from "./components/Header"; // Use existing Header component
 
 import Footer from "./components/Footer"; // Footer gốc
 // import Footer from "./components/Footer.new"; // Footer mới (bỏ comment để sử dụng)
+import FloatContact from "./components/FloatContact";
 
 import NotificationContainer from "./components/Notification";
 
@@ -62,6 +63,8 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            {/* Floating contact buttons (Zalo + Call) */}
+            <FloatContact />
             <NotificationContainer />
           </Router>
         </NotificationProvider>

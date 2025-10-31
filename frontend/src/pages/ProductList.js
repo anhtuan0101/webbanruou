@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useDebounce } from '../hooks/useDebounce';
 import { normalizeTypeParam } from '../utils/normalizeType';
@@ -19,18 +19,105 @@ export default function ProductList() {
     { value: 'cuoi-hoi', label: 'Giỏ trái cây cưới hỏi' },
   ];
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const headerTypingRef = useRef(false);
+  const headerTypingTimerRef = useRef(null);
+
+  // Listen for header live-search events (dispatched during typing). This
+  // allows the header to update ProductList immediately without navigating
+  // and causing a route-level re-render that produced visual jumpiness.
+  useEffect(() => {
+    const handler = (e) => {
+      const v = e && e.detail && typeof e.detail.value === 'string' ? e.detail.value : '';
+      // mark that the header is actively typing so we don't write URL params
+      // during this short period (prevents flicker of category/title)
+      headerTypingRef.current = true;
+      if (headerTypingTimerRef.current) clearTimeout(headerTypingTimerRef.current);
+      headerTypingTimerRef.current = setTimeout(() => {
+        headerTypingRef.current = false;
+        headerTypingTimerRef.current = null;
+      }, 1000);
+      setSearchTerm(v);
+    };
+    window.addEventListener('header:search', handler);
+    return () => {
+      window.removeEventListener('header:search', handler);
+      if (headerTypingTimerRef.current) {
+        clearTimeout(headerTypingTimerRef.current);
+        headerTypingTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Listen for header hover events and immediately reflect the hovered
+  // category in the page (update selectedCategory + address bar without full
+  // navigation). This makes hovering a menu show the category view.
+  useEffect(() => {
+    const onHover = (e) => {
+      const cat = e && e.detail && e.detail.category ? String(e.detail.category) : '';
+      if (!cat) return;
+      // cancel any pending debounce timer and set immediately
+      if (categoryTimerRef.current) {
+        clearTimeout(categoryTimerRef.current);
+        categoryTimerRef.current = null;
+      }
+      setSelectedCategory(cat);
+      // reflect in address bar without React Router navigation
+      try {
+        const params = new URLSearchParams(searchParams);
+        if (cat) params.set('category', cat);
+        else params.delete('category');
+        const qs = params.toString();
+        const newUrl = qs ? `/products?${qs}` : '/products';
+        window.history.replaceState(window.history.state, '', newUrl);
+      } catch (err) {
+        // ignore
+      }
+    };
+    window.addEventListener('header:hoverCategory', onHover);
+    return () => window.removeEventListener('header:hoverCategory', onHover);
+  }, [searchParams]);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const categoryTimerRef = useRef(null);
+  const lastUrlChangeRef = useRef(0);
+
+  // Debug logs: trace when searchParams or selectedCategory change to find
+  // the source of the title flicker the user reported.
+  useEffect(() => {
+    try {
+      console.debug(`[ProductList][debug] ${new Date().toISOString()} searchParams:`, searchParams.toString());
+    } catch (err) {}
+  }, [searchParams]);
+
+  useEffect(() => {
+    try {
+      console.debug(`[ProductList][debug] ${new Date().toISOString()} selectedCategory ->`, selectedCategory);
+    } catch (err) {}
+  }, [selectedCategory]);
 
   // Khi searchParams thay đổi (ví dụ click từ menu), cập nhật selectedCategory và selectedType
   useEffect(() => {
     const urlCategory = searchParams.get('category') || '';
-    setSelectedCategory(urlCategory);
+    // Debounce category updates slightly to avoid rapid toggles when the
+    // nav/menu may cause transient searchParams changes (prevents title flicker).
+    if (categoryTimerRef.current) clearTimeout(categoryTimerRef.current);
+    categoryTimerRef.current = setTimeout(() => {
+      setSelectedCategory(urlCategory);
+      categoryTimerRef.current = null;
+    }, 120);
+    // Keep searchTerm synced with URL `search` param (so header -> /products?search=... works)
+    const urlSearch = searchParams.get('search') || '';
+    setSearchTerm(urlSearch);
+
     const urlTypeRaw = searchParams.get('type') || '';
     const urlType = normalizeTypeParam(urlTypeRaw);
     // debug: show incoming URL params and normalization
-    console.debug('[ProductList] URL params -> category:', urlCategory, 'typeRaw:', urlTypeRaw, 'normalizedType:', urlType);
+    console.debug('[ProductList] URL params -> category:', urlCategory, 'typeRaw:', urlTypeRaw, 'normalizedType:', urlType, 'search:', urlSearch);
     setSelectedType(urlType);
+    // mark that URL/searchParams changed due to navigation so update-effect
+    // can avoid immediately writing params back (prevents races)
+    lastUrlChangeRef.current = Date.now();
   }, [searchParams]);
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'name');
   const [selectedType, setSelectedType] = useState(searchParams.get('type') || '');
@@ -69,15 +156,63 @@ export default function ProductList() {
 
   // Update URL params when filters change
   useEffect(() => {
-    const params = new URLSearchParams();
+    // Build desired params starting from current searchParams. We prefer the
+    // current URL `search` param if it differs from our debouncedSearch to
+    // avoid overwriting an external navigation (e.g. header typing/submit).
+    const params = new URLSearchParams(searchParams);
+
+    // Tentatively set search from our debounced input
     if (debouncedSearch) params.set('search', debouncedSearch);
+    else params.delete('search');
+
+    // Non-search filters
     if (selectedCategory) params.set('category', selectedCategory);
+    else params.delete('category');
     if (selectedType) params.set('type', selectedType);
+    else params.delete('type');
     if (sortBy !== 'name') params.set('sort', sortBy);
+    else params.delete('sort');
     if (currentPage !== 1) params.set('page', currentPage.toString());
-    
+    else params.delete('page');
+
+  const currentQs = searchParams.toString();
+  const newQs = params.toString();
+
+  if (currentQs === newQs) return; // nothing to do
+
+  // If the header is actively typing or we just received a navigation
+  // update to the URL (clicking a nav/subtype), delay writing URL params
+  // to avoid races and flicker. lastUrlChangeRef is set when searchParams
+  // changes (above).
+  if (headerTypingRef.current) return;
+  if (lastUrlChangeRef.current && (Date.now() - lastUrlChangeRef.current) < 500) return;
+
+    // If the current URL search param differs from our debouncedSearch, it's
+    // likely an external navigation (header submit). In that case, don't overwrite
+    // the `search` param — only update other params if needed.
+    const currentSearch = searchParams.get('search') || '';
+    const debouncedSearchValue = debouncedSearch || '';
+    if (currentSearch !== debouncedSearchValue) {
+      const paramsKeepSearch = new URLSearchParams(searchParams);
+      if (selectedCategory) paramsKeepSearch.set('category', selectedCategory);
+      else paramsKeepSearch.delete('category');
+      if (selectedType) paramsKeepSearch.set('type', selectedType);
+      else paramsKeepSearch.delete('type');
+      if (sortBy !== 'name') paramsKeepSearch.set('sort', sortBy);
+      else paramsKeepSearch.delete('sort');
+      if (currentPage !== 1) paramsKeepSearch.set('page', currentPage.toString());
+      else paramsKeepSearch.delete('page');
+
+      const keepQs = paramsKeepSearch.toString();
+      if (keepQs !== currentQs) {
+        setSearchParams(paramsKeepSearch);
+      }
+      return;
+    }
+
+    // Normal case: we control the search param, write desired params.
     setSearchParams(params);
-  }, [debouncedSearch, selectedCategory, selectedType, sortBy, currentPage, setSearchParams]);
+  }, [debouncedSearch, selectedCategory, selectedType, sortBy, currentPage, searchParams, setSearchParams]);
 
   // Apply filters when they change
   useEffect(() => {

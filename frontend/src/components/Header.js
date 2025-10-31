@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
@@ -16,6 +16,8 @@ export default function Header() {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openAccordion, setOpenAccordion] = useState(null);
+  const searchDebounceRef = useRef(null);
+  const isComposingRef = useRef(false);
 
   // Handle window resize
   useEffect(() => {
@@ -61,16 +63,88 @@ export default function Header() {
 
   const handleSearch = useCallback((e) => {
     e.preventDefault();
-    if (search.trim()) {
-      navigate(`/products?search=${encodeURIComponent(search)}`);
+    // Ensure we use the very latest input value (read from the form) and
+    // cancel any pending debounced URL updates so they don't overwrite the
+    // navigation triggered by this submit.
+    let val = search;
+    try {
+      const form = e.currentTarget || e.target;
+      const input = form.querySelector && (form.querySelector('.search-input-main') || form.querySelector('.search-input'));
+      if (input && typeof input.value === 'string') {
+        val = input.value;
+      }
+    } catch (err) {
+      // fallback to state 'search'
+    }
+
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
+
+    if (val && val.trim()) {
+      navigate(`/products?search=${encodeURIComponent(val.trim())}`);
       closeMenu();
-      setSearch("");
+    } else {
+      // If empty, navigate to products without search param
+      navigate('/products');
+      closeMenu();
     }
   }, [search, navigate, closeMenu]);
+
+  // Keep header search input in sync with URL `search` param so that
+  // - before Enter: user sees what they typed
+  // - after Enter (navigation to /products?search=...): header shows the search term from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search') || '';
+    // Only sync from URL when:
+    // - we're on the products page (so other pages don't overwrite)
+    // - and the search input is not currently focused (avoid clobbering while typing)
+    try {
+      const isProductsPage = location.pathname.startsWith('/products');
+      const active = document.activeElement;
+      const inputFocused = active && (active.classList && (active.classList.contains('search-input-main') || active.classList.contains('search-input')));
+      if (isProductsPage && !inputFocused && q !== search) {
+        setSearch(q);
+      }
+    } catch (e) {
+      if (q !== search) setSearch(q);
+    }
+  }, [location.search]);
+
+  // Helper: schedule updating the URL `search` param (debounced)
+  const scheduleUpdateUrl = (value) => {
+    if (!location.pathname.startsWith('/products')) return;
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      // Only notify ProductList of the typed value via an event. Do NOT
+      // modify the URL while typing — changing the URL can affect
+      // `searchParams` and cause category/type state to flicker.
+      try {
+        window.dispatchEvent(new CustomEvent('header:search', { detail: { value } }));
+      } catch (err) {
+        const ev = document.createEvent('CustomEvent');
+        ev.initCustomEvent('header:search', true, true, { value });
+        window.dispatchEvent(ev);
+      }
+    }, 350);
+  };
 
   // Helpers
   const isActive = (path) => location.pathname === path;
   const getTotalItems = () => cart.reduce((total, item) => total + (item.quantity || 1), 0);
+
+  // Dispatch a hover category event so ProductList can update on hover
+  const dispatchHoverCategory = (categoryId) => {
+    try {
+      window.dispatchEvent(new CustomEvent('header:hoverCategory', { detail: { category: String(categoryId) } }));
+    } catch (err) {
+      const ev = document.createEvent('CustomEvent');
+      ev.initCustomEvent('header:hoverCategory', true, true, { category: String(categoryId) });
+      window.dispatchEvent(ev);
+    }
+  };
 
   return (
     <header className="header">
@@ -94,7 +168,20 @@ export default function Header() {
                 className="search-input-main"
                 placeholder="Tìm kiếm sản phẩm..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onCompositionStart={() => { isComposingRef.current = true; }}
+                onCompositionEnd={(e) => {
+                  isComposingRef.current = false;
+                  const v = e.target.value;
+                  setSearch(v);
+                  // composition finished — do an update
+                  scheduleUpdateUrl(v);
+                }}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setSearch(v);
+                  // Only schedule URL updates when not composing (IME)
+                  if (!isComposingRef.current) scheduleUpdateUrl(v);
+                }}
               />
               <button type="submit" className="search-btn-main">
                 🔍
@@ -167,6 +254,7 @@ export default function Header() {
           isActive={isActive}
           closeMenu={closeMenu}
           handleLogout={handleLogout}
+          dispatchHoverCategory={dispatchHoverCategory}
         />
       )}
 
@@ -183,6 +271,8 @@ export default function Header() {
           search={search}
           setSearch={setSearch}
           handleSearch={handleSearch}
+          isComposingRef={isComposingRef}
+          scheduleUpdateUrl={scheduleUpdateUrl}
         />
       )}
     </header>
@@ -190,7 +280,7 @@ export default function Header() {
 }
 
 // Desktop Navigation Component
-function DesktopNav({ user, isActive, closeMenu, handleLogout }) {
+function DesktopNav({ user, isActive, closeMenu, handleLogout, dispatchHoverCategory }) {
   return (
     <nav className="header-nav-bar">
       <div className="nav-container">
@@ -201,18 +291,18 @@ function DesktopNav({ user, isActive, closeMenu, handleLogout }) {
           </Link>
 
           {/* Imported Fruits */}
-          <Link to="/products?category=1" className={`nav-link-item ${isActive('/products?category=1') ? 'active' : ''}`}>
-            Trái cây nhập khẩu
+      <Link to="/products?category=1" className={`nav-link-item ${isActive('/products?category=1') ? 'active' : ''}`} onClick={() => dispatchHoverCategory(1)}>
+        Trái cây nhập khẩu
           </Link>
 
           {/* Vietnamese Fruits */}
-          <Link to="/products?category=5" className={`nav-link-item ${isActive('/products?category=5') ? 'active' : ''}`}>
+          <Link to="/products?category=5" className={`nav-link-item ${isActive('/products?category=5') ? 'active' : ''}`} onClick={() => dispatchHoverCategory(5)}>
             Trái cây Việt Nam
           </Link>
 
           {/* Fresh Flowers Dropdown */}
           <div className="nav-dropdown-wrapper">
-            <Link to="/products?category=3" className="nav-link-item dropdown-trigger">
+            <Link to="/products?category=3" className="nav-link-item dropdown-trigger" onClick={() => dispatchHoverCategory(3)}>
               Hoa tươi <span className="arrow">▼</span>
             </Link>
             <div className="nav-dropdown-menu">
@@ -236,7 +326,7 @@ function DesktopNav({ user, isActive, closeMenu, handleLogout }) {
 
           {/* Fruit Baskets Dropdown */}
           <div className="nav-dropdown-wrapper">
-            <Link to="/products?category=2" className="nav-link-item dropdown-trigger">
+            <Link to="/products?category=2" className="nav-link-item dropdown-trigger" onClick={() => dispatchHoverCategory(2)}>
               Giỏ quà trái cây <span className="arrow">▼</span>
             </Link>
             <div className="nav-dropdown-menu">
@@ -271,7 +361,7 @@ function DesktopNav({ user, isActive, closeMenu, handleLogout }) {
 }
 
 // Mobile Overlay Component
-function MobileOverlay({ user, openAccordion, toggleAccordion, closeMenu, handleLogout, getTotalItems, isActive, search, setSearch, handleSearch }) {
+function MobileOverlay({ user, openAccordion, toggleAccordion, closeMenu, handleLogout, getTotalItems, isActive, search, setSearch, handleSearch, isComposingRef, scheduleUpdateUrl }) {
   return (
     <div className="mobile-overlay" role="dialog" aria-modal="true">
       <div className="overlay-header">
@@ -295,7 +385,18 @@ function MobileOverlay({ user, openAccordion, toggleAccordion, closeMenu, handle
             className="search-input"
             placeholder="Tìm kiếm sản phẩm..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onCompositionStart={() => { isComposingRef.current = true; }}
+            onCompositionEnd={(e) => {
+              isComposingRef.current = false;
+              const v = e.target.value;
+              setSearch(v);
+              scheduleUpdateUrl(v);
+            }}
+            onChange={(e) => {
+              const v = e.target.value;
+              setSearch(v);
+              if (!isComposingRef.current) scheduleUpdateUrl(v);
+            }}
           />
           <button type="submit" className="search-btn">
             🔍
