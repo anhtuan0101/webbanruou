@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import { getUserOrders, formatOrderForDisplay } from '../services/orderService';
 import { CartContext } from '../context/CartContext';
 import './Header.css';
 import logo from '../assets/LOGO.png';
@@ -16,8 +17,13 @@ export default function Header() {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openAccordion, setOpenAccordion] = useState(null);
+  const [ordersMenuOpen, setOrdersMenuOpen] = useState(false);
+  const [orders, setOrders] = useState(null);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
   const searchDebounceRef = useRef(null);
   const isComposingRef = useRef(false);
+  const ordersMenuRef = useRef(null);
 
   // Handle window resize
   useEffect(() => {
@@ -56,6 +62,66 @@ export default function Header() {
     logout();
     closeMenu();
   }, [logout, closeMenu]);
+
+  // Fetch recent user orders when opening the orders menu (only for authenticated users)
+  const toggleOrdersMenu = useCallback(async () => {
+    setOrdersMenuOpen(prev => !prev);
+    // If opening and we don't have orders yet, fetch them
+    if (!ordersMenuOpen && !orders && user) {
+      setOrdersLoading(true);
+      setOrdersError(null);
+      try {
+        const res = await getUserOrders({ limit: 5, sortBy: 'order_date', sortOrder: 'desc' });
+        const list = res.orders || res;
+        const formatted = (list || []).map(o => formatOrderForDisplay(o));
+        setOrders(formatted);
+      } catch (err) {
+        setOrdersError(err?.userMessage || err.message || 'Không thể tải đơn hàng');
+      } finally {
+        setOrdersLoading(false);
+      }
+    }
+  }, [ordersMenuOpen, orders, user]);
+
+  // Close orders menu on outside click
+  useEffect(() => {
+    function handleOutside(e) {
+      if (ordersMenuRef.current && !ordersMenuRef.current.contains(e.target)) {
+        setOrdersMenuOpen(false);
+      }
+    }
+    if (ordersMenuOpen) {
+      document.addEventListener('mousedown', handleOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [ordersMenuOpen]);
+
+  // Listen for global "orders:refresh" events (e.g. after placing an order)
+  // and refresh the orders list in the header so users see newly created orders.
+  useEffect(() => {
+    let mounted = true;
+    const handleRefresh = async () => {
+      if (!user) return;
+      setOrdersLoading(true);
+      setOrdersError(null);
+      try {
+        const res = await getUserOrders({ limit: 5, sortBy: 'order_date', sortOrder: 'desc' });
+        const list = res.orders || res;
+        const formatted = (list || []).map(o => formatOrderForDisplay(o));
+        if (mounted) setOrders(formatted);
+      } catch (err) {
+        if (mounted) setOrdersError(err?.userMessage || err.message || 'Không thể tải đơn hàng');
+      } finally {
+        if (mounted) setOrdersLoading(false);
+      }
+    };
+
+    window.addEventListener('orders:refresh', handleRefresh);
+    return () => {
+      mounted = false;
+      window.removeEventListener('orders:refresh', handleRefresh);
+    };
+  }, [user]);
 
   const toggleAccordion = useCallback((id) => {
     setOpenAccordion(prev => prev === id ? null : id);
@@ -222,11 +288,47 @@ export default function Header() {
                     </Link>
                   </>
                 ) : (
-                  <div className="top-user-menu">
-                    <span className="top-username">👤 {user.username}</span>
+                  <div className="top-user-menu" ref={ordersMenuRef}>
+                    <button className="top-username orders-toggle" onClick={toggleOrdersMenu} aria-haspopup="true" aria-expanded={ordersMenuOpen}>
+                      👋 Hi, {user.username}
+                    </button>
+
                     <button className="top-logout-btn" onClick={handleLogout}>
                       Đăng xuất
                     </button>
+
+                    {/* Orders dropdown (desktop) */}
+                    {ordersMenuOpen && (
+                      <div className="orders-dropdown" role="menu">
+                        <div className="orders-dropdown-header">Đơn hàng gần đây</div>
+                        {ordersLoading && <div className="orders-loading">Đang tải...</div>}
+                        {ordersError && <div className="orders-error">{ordersError}</div>}
+                        {!ordersLoading && !ordersError && (!orders || orders.length === 0) && (
+                          <div className="orders-empty">Bạn chưa có đơn hàng nào. <br />Mua hàng ngay để lưu lịch sử khi đã đăng nhập.</div>
+                        )}
+                        {!ordersLoading && orders && orders.length > 0 && (
+                          <ul className="orders-list">
+                            {orders.map(o => (
+                              <li key={o.id || o._id} className="orders-item">
+                                <a href={`/orders/${o.id || o._id}`} onClick={() => setOrdersMenuOpen(false)}>
+                                  <div className="orders-item-top">
+                                    <span className="orders-item-id">#{o.id || o._id}</span>
+                                    <span className="orders-item-amount">{o.formattedAmount}</span>
+                                  </div>
+                                  <div className="orders-item-meta">
+                                    <span className="orders-item-date">{o.formattedDate}</span>
+                                    <span className="orders-item-status">{o.statusInfo?.label}</span>
+                                  </div>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="orders-dropdown-footer">
+                          <Link to="/orders" onClick={() => setOrdersMenuOpen(false)}>Xem tất cả đơn hàng</Link>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

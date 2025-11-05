@@ -13,7 +13,7 @@
     text-align: center;
     font-size: 1.2em;
     color: #e67e22; /* Màu cam */
-    padding: 20px;
+    
 }
 
 
@@ -349,9 +349,9 @@
     min-width: 0;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 400px) {
     .product-detail-page .container {
-        padding: 0 0.5px;
+        padding: 0 0px;
         align-items: center;
     }
     .product-detail-page .product-detail {

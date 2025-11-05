@@ -29,7 +29,38 @@ const { sendOrderNotificationToZalo } = require('../utils/zaloService');
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { items, shipping_address, customer_info } = req.body; // customer_info: { full_name, phone, email, address, notes }
+    // Log incoming payload and headers to help debug validation issues
+    try { console.log('createOrder incoming headers:', JSON.stringify(req.headers)); } catch (_) {}
+    try { console.log('createOrder incoming content-type:', req.get('content-type')); } catch (_) {}
+    try { console.log('createOrder incoming body:', JSON.stringify(req.body)); } catch (_) {}
+
+    const { items, shipping_address } = req.body || {};
+    let customer_info = req.body ? req.body.customer_info : undefined; // customer_info: { full_name, phone, address, notes }
+
+    // Defensive: if customer_info comes as a JSON string, try parse it
+    if (typeof customer_info === 'string') {
+      try {
+        customer_info = JSON.parse(customer_info);
+        console.log('createOrder: parsed customer_info from string');
+      } catch (e) {
+        console.error('createOrder: failed to parse customer_info string', e.message);
+      }
+    }
+
+    // Basic validation and clearer error messages
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      console.error('createOrder: invalid items payload:', items);
+      return res.status(400).json({ message: 'Danh sách sản phẩm trống' });
+    }
+    if (!customer_info || typeof customer_info !== 'object') {
+      console.error('createOrder: missing or invalid customer_info in request body:', req.body);
+      return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin khách hàng' });
+    }
+    // require at least a phone or full_name
+    if ((!customer_info.phone || !String(customer_info.phone).trim()) && (!customer_info.full_name || !String(customer_info.full_name).trim())) {
+      console.error('createOrder: missing customer phone and name:', customer_info);
+      return res.status(400).json({ message: 'Vui lòng cung cấp tên hoặc số điện thoại khách hàng' });
+    }
     let customer_id = null;
     let customer_name = '';
     let customer_email = '';
@@ -47,26 +78,42 @@ exports.createOrder = async (req, res, next) => {
       customer_email = cusRows[0].email;
       customer_phone = cusRows[0].phone;
     } else {
-      // Khách chưa đăng nhập: tìm theo email, nếu chưa có thì tạo mới
-      if (!customer_info || typeof customer_info !== 'object' || !customer_info.email) {
+      // Khách chưa đăng nhập: email bây giờ là tùy chọn.
+      if (!customer_info || typeof customer_info !== 'object') {
+        console.error('createOrder: missing or invalid customer_info in request body:', req.body);
         return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin khách hàng' });
       }
-      const [cusRows] = await pool.query('SELECT customer_id, name, email, phone FROM customers WHERE email = ?', [customer_info.email]);
-      if (cusRows.length) {
+
+      // Prefer tìm theo email nếu có, nếu không có email thì tìm theo phone
+      let cusRows = [];
+      if (customer_info.email) {
+        [cusRows] = await pool.query('SELECT customer_id, name, email, phone FROM customers WHERE email = ?', [customer_info.email]);
+      }
+
+      if ((!cusRows || cusRows.length === 0) && customer_info.phone) {
+        const [byPhone] = await pool.query('SELECT customer_id, name, email, phone FROM customers WHERE phone = ?', [customer_info.phone]);
+        if (byPhone && byPhone.length) cusRows = byPhone;
+      }
+
+      if (cusRows && cusRows.length) {
         customer_id = cusRows[0].customer_id;
         customer_name = cusRows[0].name;
         customer_email = cusRows[0].email;
         customer_phone = cusRows[0].phone;
       } else {
-        // Tạo mới customer
+        // Tạo mới customer; cho phép email null
+        const insertEmail = customer_info.email && customer_info.email.trim() ? customer_info.email.trim() : null;
+        const insertPhone = customer_info.phone && customer_info.phone.trim() ? customer_info.phone.trim() : null;
+        const insertAddress = customer_info.address || null;
+
         const [result] = await pool.query(
           'INSERT INTO customers (name, email, phone, address) VALUES (?, ?, ?, ?)',
-          [customer_info.full_name, customer_info.email, customer_info.phone, customer_info.address]
+          [customer_info.full_name, insertEmail, insertPhone, insertAddress]
         );
         customer_id = result.insertId;
         customer_name = customer_info.full_name;
-        customer_email = customer_info.email;
-        customer_phone = customer_info.phone;
+        customer_email = insertEmail;
+        customer_phone = insertPhone;
       }
     }
 
@@ -143,12 +190,16 @@ exports.createOrder = async (req, res, next) => {
         console.error('Failed to send admin notification:', emailError);
       }
 
-      // Gửi email xác nhận cho khách hàng
-      try {
-        await emailService.sendOrderConfirmation(orderData, order.email);
-        console.log('Customer confirmation email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send customer confirmation:', emailError);
+      // Gửi email xác nhận cho khách hàng (chỉ khi có email)
+      if (order.email) {
+        try {
+          await emailService.sendOrderConfirmation(orderData, order.email);
+          console.log('Customer confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send customer confirmation:', emailError);
+        }
+      } else {
+        console.log('No customer email provided - skipping customer confirmation email');
       }
     }
 

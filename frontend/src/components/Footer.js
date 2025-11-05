@@ -72,7 +72,7 @@ function Footer() {
           <div className="contact-info">
                   <div className="contact-item">
                     <span className="contact-icon"><FaMapMarkerAlt /></span>
-                    <span>170 Nguyễn Duy Cung, phường An Hội Tây, TPHCM</span>
+                    <span>170 Nguyễn Duy Cung, phường An Hội Tây, TPHCM (Gò Vấp cũ)</span>
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaPhoneAlt /></span>

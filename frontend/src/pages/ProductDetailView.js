@@ -12,6 +12,14 @@ export default function ProductDetailView({
   handleAddToCart,
   navigate
 }) {
+  const [showFullDesc, setShowFullDesc] = React.useState(false);
+  // helper: strip HTML tags to get plain text length
+  const stripTags = (html) => {
+    if (!html) return '';
+    return html.replace(/<[^>]*>/g, '').trim();
+  };
+  const descText = stripTags(product.description || '');
+  const isLongDesc = descText.length > 300;
   // Chuẩn hóa đường dẫn ảnh (nếu là đường dẫn tương đối thì thêm domain backend)
   const normalizeImageUrl = (raw) => {
     if (!raw) return '/api/placeholder/400/400';
@@ -66,6 +74,29 @@ export default function ProductDetailView({
                 ))}
               </div>
             )}
+            {/* Move product description below the image for better mobile/layout */}
+            {product.description && (
+              <div className="image-description" style={{ width: '100%', marginTop: 12 }}>
+                <h4 className="image-description-title">Mô tả</h4>
+                <div className="image-description-body">
+                  {/* modern description block with optional collapse */}
+                  <div className={`desc-content ${showFullDesc ? 'expanded' : 'collapsed'}`}>
+                    { /<[^>]+>/.test(product.description) ? (
+                      <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                    ) : (
+                      <div className="plain-text-description">{product.description}</div>
+                    ) }
+                  </div>
+                  {isLongDesc && (
+                    <div className="desc-actions">
+                      <button className="read-more-btn" onClick={() => setShowFullDesc(s => !s)}>
+                        {showFullDesc ? 'Thu gọn' : 'Xem thêm'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -81,12 +112,6 @@ export default function ProductDetailView({
                 <span className="out-of-stock">Hết hàng</span>
               )}
             </div>
-            {product.description && (
-              <div className="product-description">
-                <h3>Mô tả sản phẩm</h3>
-                <p>{product.description}</p>
-              </div>
-            )}
             {/* Quantity and Add to Cart */}
             <div className="product-actions">
               <div className="quantity-selector">
@@ -138,6 +163,7 @@ export default function ProductDetailView({
             </div>
           </div>
         </div>
+        {/* description moved into image column for improved layout */}
       </div>
     </div>
   );

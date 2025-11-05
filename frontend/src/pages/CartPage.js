@@ -138,7 +138,7 @@ export default function CartPage() {
               
               <div className="summary-row">
                 <span>Phí vận chuyển</span>
-                <span className="free">Miễn phí</span>
+                <span className="free">Miẽn phí bán kính 2km</span>
               </div>
               
               <div className="summary-divider"></div>

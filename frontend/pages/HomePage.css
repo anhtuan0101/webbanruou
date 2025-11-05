@@ -137,7 +137,7 @@
 .container {
   max-width: 1900px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 0rem;
 }
 
 .section-title {
@@ -370,7 +370,7 @@
 }
 
 /* Mobile tuning: show 2 products per row on most phones */
-@media (max-width: 600px) {
+@media (max-width: 400px) {
   /* Show 2 products per row on most phones.
      Use minmax(0,1fr) so items can shrink below intrinsic min-width. */
   .products-grid {

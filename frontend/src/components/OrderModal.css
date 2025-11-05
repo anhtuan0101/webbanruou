@@ -1,0 +1,19 @@
+.rf-modal-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+.rf-modal{
+  background:#fff;border-radius:8px;max-width:520px;width:92%;padding:20px 22px;text-align:left;position:relative;
+}
+.rf-modal-title{margin:0;color:#16a34a;font-size:20px}
+.rf-modal-sub{margin:6px 0 12px;font-size:14px}
+.rf-modal-order{font-weight:700;font-size:18px;margin-bottom:12px}
+.rf-modal-details{font-size:14px;color:#333}
+.rf-order-items{list-style:none;padding:0;margin:8px 0 0}
+.rf-order-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.rf-order-summary{margin-top:8px;font-weight:600}
+.rf-modal-actions{display:flex;gap:12px;justify-content:center;margin-top:14px}
+.rf-modal-close{position:absolute;right:10px;top:10px;background:transparent;border:none;color:#666}
+
+/* Buttons fallback (these classes are used in the project) */
+.submit-btn{background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:6px}
+.back-btn{background:#efefef;color:#333;border:none;padding:8px 14px;border-radius:6px}

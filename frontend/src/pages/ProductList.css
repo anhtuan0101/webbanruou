@@ -1,13 +1,19 @@
 .product-list-page {
+  --accent-green: #22c55e;
+  --muted: #666666;
+  --card-shadow: rgba(34, 197, 94, 0.06);
+  --card-shadow-strong: rgba(34, 197, 94, 0.12);
+  --ease: cubic-bezier(.2,.8,.2,1);
+
   min-height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #fcfefd 100%);
+  background: #ffffff;
   padding: 2rem 0;
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 .header-content {
   display: flex;
@@ -20,9 +26,10 @@
 
 .header-content h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a; /* darker and crisper */
+  letter-spacing: -0.2px;
 }
 
 .header-right {
@@ -33,8 +40,8 @@
 
 .product-count {
   font-size: 14px;
-  color: #666;
-  font-weight: 500;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .sort-select {
@@ -90,6 +97,7 @@
   font-weight: 600;
   color: #191919;
   margin-bottom: 0rem;
+  margin-top: -3rem;
   text-shadow: 0 2px 4px rgba(22, 101, 52, 0.1);
 }
 
@@ -254,18 +262,37 @@
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
   margin-bottom: 3rem;
+  align-items: stretch;
 }
+
+/* subtle border on cards to lift them from the background */
+.products-grid .product-card {
+  border: 1px solid rgba(34,197,94,0.04);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+
+.products-grid .product-card:hover {
+  box-shadow: 0 10px 36px var(--card-shadow-strong);
+  transform: translateY(-4px);
+}
+
+/* 3 columns on medium screens (tablets / small laptops) */
+@media (max-width: 1199px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
+}
 
-
+/* 2 columns on mobile devices */
+@media (max-width: 768px) {
   .products-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
   }
+}
 
 /* Loading State */
 .loading-state {
@@ -418,6 +445,7 @@
 @media (max-width: 768px) {
   .page-header h1 {
     font-size: 2rem;
+    margin-left:1rem;
   }
 
   .filters-section {
@@ -450,11 +478,13 @@
 
   .page-header h1 {
     font-size: 1.75rem;
+    margin-left:1rem;
   }
 
+  /* Show 2 product cards per row on typical mobile widths */
   .products-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
   }
 
   .search-input {
@@ -464,6 +494,13 @@
   .filters-section {
     padding: 1rem;
   }
+}
+
+/* Tighter card spacing and background on small phones to mimic mock */
+@media (max-width: 480px) {
+  .products-grid { gap: 0.6rem; }
+  .product-card { padding: 8px 6px; }
+  .container { padding: 0 0.6rem; }
 }
 
 /* Mobile-specific tweaks */
@@ -506,12 +543,22 @@
     padding: 0.75rem 1rem;
   }
 
+  /* keep two columns on small phones (handled above) */
   .products-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
   }
 
   .page-header h1 {
     font-size: 1.5rem;
+    margin-left:1rem;
+  }
+}
+
+/* For very small phones, keep 2 columns but reduce gap */
+@media (max-width: 360px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
   }
 }

@@ -319,6 +319,95 @@ html {
   box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
 }
 
+/* Orders dropdown styles (desktop) */
+.orders-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 320px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 1200;
+  font-family: var(--menu-font);
+}
+
+.orders-dropdown-header {
+  font-weight: 700;
+  color: #111827;
+  padding: 6px 8px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.orders-loading,
+.orders-error,
+.orders-empty {
+  padding: 12px 10px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.orders-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.orders-item {
+  border-radius: 8px;
+  padding: 8px;
+  transition: background 0.15s ease;
+}
+
+.orders-item a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.orders-item:hover {
+  background: #f8fafc;
+}
+
+.orders-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.orders-item-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.orders-item-status {
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.orders-dropdown-footer {
+  border-top: 1px solid #eef2f7;
+  padding-top: 8px;
+  text-align: center;
+}
+
+.orders-dropdown-footer a {
+  color: #10b981;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 /* ========================================
    NAVIGATION BAR (Desktop)
    ======================================== */
