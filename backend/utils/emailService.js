@@ -106,7 +106,7 @@ class EmailService {
           <p><strong>Họ tên đặt hàng:</strong> ${orderData.customer_name}</p>
           <p><strong>Số điện thoại:</strong> <a href="tel:${orderData.phone}" style="color: #ff6b35;">${orderData.phone}</a></p>
           <p><strong>Email:</strong> <a href="mailto:${orderData.email}" style="color: #ff6b35;">${orderData.email}</a></p>
-          <p><strong>Địa chỉ nhận hàng:</strong> ${orderData.address || '(Không nhập)'}</p>
+          <p><strong>Địa chỉ nhận hàng:</strong> ${orderData.address || '(Không nhập)'}</p>g
           <p><strong>Người nhận hàng:</strong> ${orderData.receiver_name || '(Trùng người đặt)'}</p>
           <p><strong>SĐT người nhận:</strong> <a href="tel:${orderData.receiver_phone || orderData.phone}" style="color: #ff6b35;">${orderData.receiver_phone || orderData.phone || '(Không nhập)'}</a></p>
           <p><strong>Ngày giờ nhận hàng:</strong> ${orderData.delivery_time ? EmailService.formatVietnamTime(orderData.delivery_time) : '(Không chọn)'}</p>
