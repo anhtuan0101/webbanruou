@@ -134,7 +134,7 @@
   margin-left:0px;
 }
 
-.container {
+
   max-width: 1900px;
   margin: 0 auto;
   padding: 0 0rem;
@@ -370,11 +370,11 @@
 }
 
 /* Mobile tuning: show 2 products per row on most phones */
-@media (max-width: 400px) {
+@media (max-width: 350px) {
   /* Show 2 products per row on most phones.
      Use minmax(0,1fr) so items can shrink below intrinsic min-width. */
   .products-grid {
-    grid-template-columns: r, minmax(0, 1fr)) !important;
+   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 0.6rem;
     grid-auto-rows: 1fr;
   }
@@ -408,7 +408,7 @@
 }
 
 /* Very small phones: 1 column */
-@media (max-width: 380px) {
+@media (max-width: 300px) {
   .products-grid {
     grid-template-columns: 1fr !important;
   }

@@ -558,12 +558,11 @@
 /* Very small phones: fallback to 1 column */
 @media (max-width: 380px) {
   .homepage-products-grid {
-    grid-template-columns: 1fr;
-    padding: 0 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 0 0rem;
   }
 }
   
   .banner-title {
     font-size: 1.5rem;
   }
-}

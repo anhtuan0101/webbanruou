@@ -422,9 +422,10 @@
 
 @media (max-width: 400px) {
   .homepage-products-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 0 1rem;
+    
+    
+        grid-template-columns: repeat(2, 1fr);
+    padding: 0 0rem;
   }
   
   .product-card {
@@ -438,11 +439,11 @@
   }
   
   .featured-section {
-    padding: 2rem 1rem;
+    padding: 0rem 0rem;
   }
   
   .homepage-section-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
   
   .section-subtitle {

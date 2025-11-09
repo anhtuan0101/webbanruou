@@ -55,11 +55,11 @@ export default function ProductDetail() {
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!user) {
-      showWarning('Vui lòng đăng nhập để thêm vào giỏ hàng');
-      navigate('/login', { state: { from: `/products/${id}` } });
-      return;
-    }
+    // if (!user) {
+    //   showWarning('Vui lòng đăng nhập để thêm vào giỏ hàng');
+    //   navigate('/login', { state: { from: `/products/${id}` } });
+    //   return;
+    // }
 
     if (product.stock <= 0) {
       showError('Sản phẩm đã hết hàng');
