@@ -667,3 +667,4 @@ User sees result
 
 **Tài liệu này mô tả chi tiết toàn bộ luồng hoạt động của frontend, từ khởi tạo ứng dụng đến các tương tác của người dùng và xử lý dữ liệu.**
 
+

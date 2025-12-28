@@ -228,8 +228,21 @@ export default function ProductList() {
     handleTypeFilter && handleTypeFilter(selectedType);
   }, [selectedType, handleTypeFilter]);
 
+  // Parse sortBy value to extract field and order
   useEffect(() => {
-    handleSort(sortBy, 'asc');
+    // Parse sortBy value (e.g., "price_desc" -> field: "price", order: "desc")
+    let field = sortBy;
+    let order = 'asc';
+    
+    if (sortBy && sortBy.includes('_desc')) {
+      field = sortBy.replace('_desc', '');
+      order = 'desc';
+    } else if (sortBy && sortBy.includes('_asc')) {
+      field = sortBy.replace('_asc', '');
+      order = 'asc';
+    }
+    
+    handleSort(field, order);
   }, [sortBy, handleSort]);
 
   const handleSearchChange = (e) => {

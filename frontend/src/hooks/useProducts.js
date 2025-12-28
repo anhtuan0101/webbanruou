@@ -111,18 +111,30 @@ const useProducts = () => {
       if (sortBy === 'price') {
         aValue = parseFloat(aValue) || 0;
         bValue = parseFloat(bValue) || 0;
+        // For numbers, use subtraction for proper comparison
+        if (sortOrder === 'desc') {
+          return bValue - aValue; // Higher values first
+        } else {
+          return aValue - bValue; // Lower values first
+        }
       } else if (sortBy === 'created_at') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+        // For dates, use subtraction
+        if (sortOrder === 'desc') {
+          return bValue - aValue; // Newer dates first
+        } else {
+          return aValue - bValue; // Older dates first
+        }
       } else {
-        aValue = String(aValue).toLowerCase();
-        bValue = String(bValue).toLowerCase();
-      }
-
-      if (sortOrder === 'desc') {
-        return bValue > aValue ? 1 : -1;
-      } else {
-        return aValue > bValue ? 1 : -1;
+        // For strings, use localeCompare for proper comparison
+        aValue = String(aValue || '').toLowerCase();
+        bValue = String(bValue || '').toLowerCase();
+        if (sortOrder === 'desc') {
+          return bValue.localeCompare(aValue); // Z-A
+        } else {
+          return aValue.localeCompare(bValue); // A-Z
+        }
       }
     });
 
