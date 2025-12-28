@@ -1,6 +1,6 @@
 import React from "react";
 
-const PHONE_NUMBER = "0979347931";
+const PHONE_NUMBER = "0335254586";
 
 export default function FloatContact() {
   const zaloHref = `https://zalo.me/${PHONE_NUMBER}`;

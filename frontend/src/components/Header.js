@@ -259,13 +259,13 @@ export default function Header() {
           <div className="header-top-right">
             {/* Hotline */}
             <a 
-              href="https://zalo.me/0979347931" 
+              href="https://zalo.me/0335254586" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="header-hotline"
             >
               <span className="hotline-label">Hotline:</span>
-              <span className="hotline-number">0979 347 931</span>
+              <span className="hotline-number">03352545861</span>
             </a>
 
             {/* Cart */}
@@ -596,8 +596,8 @@ function MobileOverlay({ user, openAccordion, toggleAccordion, closeMenu, handle
 
         {/* Contact */}
         <div className="menu-item">
-          <a href="https://zalo.me/0979347931" target="_blank" rel="noopener noreferrer" className="menu-link contact-link">
-            📞 Hotline: 0979 347 931
+          <a href="https://zalo.me/0335254586" target="_blank" rel="noopener noreferrer" className="menu-link contact-link">
+            📞 Hotline: 0335254586
           </a>
         </div>
 

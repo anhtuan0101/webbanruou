@@ -76,11 +76,11 @@ function Footer() {
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaPhoneAlt /></span>
-                    <a href="tel:0979347931">0979 347 931</a>
+                    <a href="tel:0335254586">0335254586</a>
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaEnvelope /></span>
-                    <a href="mailto:info@fruitshop.com">info@fruitshop.com</a>
+                    <a href="mailto:info@wineshop.com">info@fruitshop.com</a>
                   </div>
                   <div className="contact-item">
                     <span className="contact-icon"><FaRegClock /></span>
@@ -88,7 +88,7 @@ function Footer() {
                   </div>
           </div>
                  <a
-                   href="https://zalo.me/0979347931"
+                   href="https://zalo.me/0335254586"
                    className="contact-cta"
                    target="_blank"
                    rel="noopener noreferrer"
