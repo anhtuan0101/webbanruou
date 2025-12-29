@@ -181,8 +181,8 @@ export default function LoginPage() {
           <h1>{isRegister ? 'Tạo tài khoản' : 'Đăng nhập'}</h1>
           <p>
             {isRegister 
-              ? 'Tham gia cộng đồng yêu thích trái cây tươi ngon' 
-              : 'Chào mừng bạn trở lại với cửa hàng trái cây'
+              ? 'Tham gia cộng đồng yêu thích rượu ngon' 
+              : 'Chào mừng bạn trở lại với cửa hàng rượu'
             }
           </p>
         </div>

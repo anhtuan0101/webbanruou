@@ -30,9 +30,9 @@ export default function HomePage() {
     <div className="home-page">
       <Helmet>
         <title>Web bán rượu</title>
-        <meta name="description" content="TuanRuou - Trái cây tươi ngon, giỏ quà và giỏ hoa cao cấp. Giao hàng nhanh, đóng gói sang trọng." />
-        <meta property="og:title" content="TuanRuou - Trái cây tươi, giỏ quà cao cấp" />
-        <meta property="og:description" content="Trái cây tươi ngon, giỏ quà và giỏ hoa cao cấp. Giao hàng nhanh, đóng gói sang trọng." />
+        <meta name="description" content="TuanRuou - Rượu tươi ngon, giỏ quà và giỏ hoa cao cấp. Giao hàng nhanh, đóng gói sang trọng." />
+        <meta property="og:title" content="TuanRuou - Rượu tươi, giỏ quà cao cấp" />
+        <meta property="og:description" content="Rượu cao cấp. Giao hàng nhanh, đóng gói sang trọng." />
         <meta property="og:url" content={`https://tuanruou.com/`} />
       </Helmet>
       <section className="hero-section">
